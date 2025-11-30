@@ -69,7 +69,9 @@ export async function apiFetch<T = any>(
   // 👉 Se asegura que los paths siempre empiecen con "/"
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
 
-  const url = `${API_URL}${normalizedPath}`;
+  // Aseguramos que todas las llamadas al Gateway usen el prefijo /api.
+  // Esto centraliza el prefijo en un solo punto y evita inconsistencias con rutas en Kong.
+  const url = `${API_URL}/api${normalizedPath}`;
 
   const res = await fetch(url, {
     headers: {
@@ -90,7 +92,7 @@ export async function apiAuthFetch<T = any>(
   options: RequestInit = {}
 ): Promise<T> {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  const url = `${API_URL}${normalizedPath}`;
+  const url = `${API_URL}/api${normalizedPath}`;
   const token = getAuthToken();
 
   const headers: HeadersInit = {

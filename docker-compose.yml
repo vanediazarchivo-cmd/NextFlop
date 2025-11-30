@@ -92,6 +92,8 @@ services:
       - RABBITMQ_URL=amqp://admin:password123@rabbitmq:5672
       - JWT_SECRET=your-super-secret-jwt-key-change-in-production
       - JWT_EXPIRES_IN=24h
+      - SUBSCRIPTIONS_SERVICE_URL=http://subscriptions-service:3000
+      - BILLING_SERVICE_URL=http://billing-service:3000
     depends_on:
       - mongodb-auth
       - rabbitmq
@@ -161,6 +163,7 @@ services:
       - NODE_ENV=development
       - PORT=3000
       - MONGODB_URI=mongodb://admin:password123@mongodb-media:27017/nextflop_media?authSource=admin
+      - MEDIA_HOST=http://localhost:8000
       - RABBITMQ_URL=amqp://admin:password123@rabbitmq:5672
       - AUTH_SERVICE_URL=http://auth-service:3000
     depends_on:
@@ -212,6 +215,23 @@ services:
       NEXT_PUBLIC_API_URL: "http://localhost:8000"
     depends_on:
       - kong
+    networks:
+      - nextflop-network
+
+  # Seed data: load TMDB sample into media DB
+  seed-tmdb:
+    image: node:20-slim
+    container_name: nextflop-seed-tmdb
+    restart: "no"
+    volumes:
+      - ./seed:/seed
+    working_dir: /seed
+    command: sh -c "npm ci && npx ts-node seed-tmdb.ts"
+    environment:
+      - TMDB_API_KEY=${TMDB_API_KEY:-}
+      - MONGO_URI=mongodb://admin:password123@mongodb-media:27017/nextflop_media?authSource=admin
+    depends_on:
+      - mongodb-media
     networks:
       - nextflop-network
 

@@ -2,6 +2,7 @@ import { NestFactory } from "@nestjs/core";
 import { ValidationPipe } from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
+import SubscriptionPlanSeeder from "./infrastructure/seeds/subscription-plan.seeder";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -44,6 +45,14 @@ async function bootstrap() {
   SwaggerModule.setup("api/docs", app, document);
 
   const port = process.env.PORT || 3002;
+  // Run DB seeders (idempotent) after app created
+  try {
+    const seeder = app.get(SubscriptionPlanSeeder);
+    if (seeder && seeder.seed) await seeder.seed();
+  } catch (err) {
+    console.error("Seeder error:", err);
+  }
+
   await app.listen(port);
 
   console.log(`🚀 Subscriptions Service running on port ${port}`);

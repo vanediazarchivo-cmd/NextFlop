@@ -90,6 +90,10 @@ services:
         paths:
           - /api/media
         strip_path: true
+      - name: media-static-uploads
+        paths:
+          - /uploads
+        strip_path: false
 
   # ============================================
   # AUTH SERVICE - Onboarding (nested in auth)

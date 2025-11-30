@@ -52,7 +52,27 @@ async function fetchMoviesByGenre(genreId: number, pages = 3) {
   return movies;
 }
 
+async function waitForMongo(uri: string, retries = 10, delayMs = 3000) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const client = new MongoClient(uri);
+      await client.connect();
+      await client.close();
+      return true;
+    } catch (err) {
+      console.log(`Mongo not ready yet (attempt ${i + 1}/${retries}), retrying in ${delayMs}ms...`);
+      await new Promise((r) => setTimeout(r, delayMs));
+    }
+  }
+  return false;
+}
+
 async function seed() {
+  const ok = await waitForMongo(MONGO_URI!, 20, 2000);
+  if (!ok) {
+    console.error('❌ Could not connect to MongoDB after retries.')
+    process.exit(1)
+  }
   console.log("🚀 Conectando a Mongo...");
   const client = new MongoClient(MONGO_URI!);
   await client.connect();

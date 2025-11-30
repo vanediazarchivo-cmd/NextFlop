@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Put, Delete, Query, Inject, UseGuards } from "@nestjs/common";
+import { Controller, Post, Body, Get, Param, Put, Delete, Query, Inject, UseGuards, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from "@nestjs/swagger";
 import { CreateMediaDto } from "../dtos/media/create-media.dto";
 import { UpdateMediaDto } from "../dtos/media/update-media.dto";
@@ -16,6 +16,9 @@ import { SearchMediaUseCase } from "../../application/use-cases/media/search-med
 import { IncrementViewCountUseCase } from "../../application/use-cases/media/increment-view.usecase";
 import { UpdateRatingUseCase } from "../../application/use-cases/media/update-rating.usecase";
 import { CreateMediaDto as CreateMediaPresentationDto } from "../dtos/media/create-media.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { diskStorage } from "multer";
+import { extname, join } from "path";
 import { CreateMediaDto as CreateMediaAppDto } from "../../application/dto/media.dto";
 
 @ApiTags("Media")
@@ -54,6 +57,27 @@ export class MediaController {
 
     const created = await this.createMediaUseCase.execute(appDto);
     return this.toDto(created);
+  }
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file', {
+    storage: diskStorage({
+      destination: (req, file, cb) => {
+        cb(null, join(process.cwd(), 'uploads'))
+      },
+      filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9)
+        const fileExt = extname(file.originalname)
+        cb(null, `${file.fieldname}-${uniqueSuffix}${fileExt}`)
+      },
+    }),
+  }))
+  @ApiOperation({ summary: 'Upload media file (poster/trailer)' })
+  async uploadFile(@UploadedFile() file: any) {
+    if (!file) return { url: null }
+    const host = process.env.MEDIA_HOST || `http://localhost:${process.env.PORT || 3004}`
+    const url = `${host}/uploads/${file.filename}`
+    return { url }
   }
 
   @Get()

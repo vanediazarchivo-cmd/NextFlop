@@ -10,6 +10,7 @@ import { PlansModule } from "./presentation/modules/plans.module"
 import { DatabaseModule } from "./infrastructure/database/database.module"
 import { RabbitMQModule } from "./infrastructure/messaging/rabbitmq.module"
 import { HttpModule } from "@nestjs/axios"
+import SubscriptionPlanSeeder from "./infrastructure/seeds/subscription-plan.seeder"
 
 @Module({
   imports: [
@@ -35,5 +36,6 @@ import { HttpModule } from "@nestjs/axios"
     SubscriptionsModule,
     PlansModule,
   ],
+  providers: [SubscriptionPlanSeeder],
 })
 export class AppModule {}
