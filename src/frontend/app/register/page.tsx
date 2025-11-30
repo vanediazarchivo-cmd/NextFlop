@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Play, ArrowLeft } from 'lucide-react'
 import { RegistrationProgress } from '@/components/registration-progress'
 import { PlanCard } from '@/components/plan-card'
+import { subscriptionsService } from '@/services/subscriptions.service'
 
 // ------------------------
 // 1. Base de features para cada plan
@@ -76,15 +77,7 @@ async function completeOnboarding(body: any) {
 // ------------------------
 // 3. Fetch de planes reales
 // ------------------------
-async function fetchPlans() {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-  const url = `${baseUrl}/api/subscription-plans`;
-
-  const resp = await fetch(url);
-  if (!resp.ok) throw new Error("Error fetching subscription plans");
-
-  return resp.json();
-}
+// Use subscriptionsService to fetch plans from backend
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -115,13 +108,13 @@ export default function RegisterPage() {
   const [finalPlans, setFinalPlans] = useState<any[]>([]);
 
   useEffect(() => {
-    fetchPlans()
+    subscriptionsService.getPlans()
       .then((plans) => {
         setApiPlans(plans);
 
         // Fusionar datos API con features base
         const merged = plans.map((plan: any, idx: number) => {
-          const base = basePlans[idx];
+          const base = basePlans[idx] || basePlans[0];
 
           return {
             id: plan.id,
@@ -129,7 +122,7 @@ export default function RegisterPage() {
             price: plan.price,
             accentColor: base.accentColor,
             features: base.features.map(f =>
-              f.replace("{devices}", plan.maxProfiles.toString())
+              f.replace("{devices}", plan.maxProfiles?.toString() || '1')
             )
           };
         });

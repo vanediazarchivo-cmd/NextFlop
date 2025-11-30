@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Play, ArrowLeft } from 'lucide-react'
+import { profilesService } from '@/services/profiles.service'
 
 const availableIcons = ['👨', '👩', '👦', '👧', '🧔', '👴', '👵', '🧒', '👶', '🐶', '🐱', '🦊']
 
@@ -20,11 +21,18 @@ export default function CreateProfilePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    console.log('[v0] Profile created:', { profileName, selectedIcon })
-    alert('Perfil creado exitosamente')
-    setIsLoading(false)
-    router.push('/profiles')
+    try {
+      const created = await profilesService.createProfile({ name: profileName, iconUrl: selectedIcon })
+      // Guardar perfil seleccionado y redirigir
+      localStorage.setItem('currentProfileId', created.id)
+      alert('Perfil creado exitosamente')
+      router.push('/profiles')
+    } catch (err) {
+      console.error('Error creating profile', err)
+      alert('Error al crear el perfil')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (

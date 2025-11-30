@@ -1,32 +1,58 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Play, ArrowLeft } from 'lucide-react'
+import { profilesService } from '@/services/profiles.service'
 
 const availableIcons = ['👨', '👩', '👦', '👧', '🧔', '👴', '👵', '🧒', '👶', '🐶', '🐱', '🦊']
 
 export default function EditProfilePage() {
   const router = useRouter()
-  // Mock current profile data
-  const [profileName, setProfileName] = useState('Juan')
+  const params = useParams()
+  const id = params?.id as string
+  const [profileName, setProfileName] = useState('')
   const [selectedIcon, setSelectedIcon] = useState('👨')
   const [isLoading, setIsLoading] = useState(false)
+  const [isFetching, setIsFetching] = useState(true)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    console.log('[v0] Profile updated:', { profileName, selectedIcon })
-    alert('Perfil actualizado exitosamente')
-    setIsLoading(false)
-    router.push('/home')
+    try {
+      if (!id) throw new Error('Missing profile id')
+      await profilesService.updateProfile(id, { name: profileName, iconUrl: selectedIcon })
+      alert('Perfil actualizado exitosamente')
+      router.push('/profiles')
+    } catch (err) {
+      console.error('Error updating profile', err)
+      alert('Error al actualizar el perfil')
+    } finally {
+      setIsLoading(false)
+    }
   }
+
+  useEffect(() => {
+    const load = async () => {
+      if (!id) return
+      try {
+        setIsFetching(true)
+        const profile = await profilesService.getProfile(id)
+        setProfileName(profile.name)
+        setSelectedIcon(profile.iconUrl || '👨')
+      } catch (err) {
+        console.error('Error loading profile', err)
+      } finally {
+        setIsFetching(false)
+      }
+    }
+    load()
+  }, [id])
 
   return (
     <div className="min-h-screen bg-background">
