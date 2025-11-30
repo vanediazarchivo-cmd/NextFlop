@@ -40,9 +40,12 @@ async function bootstrap() {
     .build()
 
   const document = SwaggerModule.createDocument(app, config)
-  SwaggerModule.setup("api/docs", app, document)
+  // Mount docs at /api/docs (global prefix will be applied)
+  SwaggerModule.setup("docs", app, document)
 
   const port = process.env.PORT || 3003
+  // Set a global prefix so all endpoints are available under /api/* when proxied by Kong
+  app.setGlobalPrefix('api')
   await app.listen(port)
 
   console.log(`🚀 Billing Service running on port ${port}`)

@@ -44,11 +44,14 @@ async function bootstrap() {
     .build()
 
   const document = SwaggerModule.createDocument(app, config)
-  SwaggerModule.setup("api/docs", app, document)
+  // Mount docs at /api/docs (global prefix will be applied)
+  SwaggerModule.setup("docs", app, document)
 
   // No local uploads serving any more; posters will be externally hosted (e.g., TMDB)
 
   const port = process.env.PORT || 3004
+  // Make the media endpoints available under /api/* to match the Gateway prefix
+  app.setGlobalPrefix('api')
   await app.listen(port)
 
   console.log(`🚀 Media Service running on port ${port}`)

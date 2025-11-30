@@ -34,7 +34,7 @@ services:
         paths:
           - /api/auth
           - /auth
-        strip_path: true
+        strip_path: false
       - name: auth-routes-plain
         paths:
           - /auth
@@ -44,7 +44,7 @@ services:
         paths:
           - /api/profiles
           - /profiles
-        strip_path: true
+        strip_path: false
       - name: profiles-routes-plain
         paths:
           - /profiles
@@ -63,7 +63,7 @@ services:
           - /subscription-plans
           - /api/plans
           - /plans
-        strip_path: true
+        strip_path: false
       - name: subscription-plans-routes-plain
         paths:
           - /plans
@@ -73,7 +73,7 @@ services:
         paths:
           - /api/subscriptions
           - /subscriptions
-        strip_path: true
+        strip_path: false
       - name: subscriptions-routes-plain
         paths:
           - /subscriptions
@@ -90,7 +90,7 @@ services:
         paths:
           - /api/payments
           - /payments
-        strip_path: true
+        strip_path: false
       - name: payments-routes-plain
         paths:
           - /payments
@@ -100,7 +100,7 @@ services:
         paths:
           - /api/payment-methods
           - /payment-methods
-        strip_path: true
+        strip_path: false
       - name: payment-methods-routes-plain
         paths:
           - /payment-methods
@@ -110,7 +110,7 @@ services:
         paths:
           - /api/billing
           - /billing
-        strip_path: true
+        strip_path: false
       - name: billing-routes-plain
         paths:
           - /billing
@@ -127,15 +127,12 @@ services:
         paths:
           - /api/media
           - /media
-        strip_path: true
+        strip_path: false
       - name: media-routes-plain
         paths:
           - /media
         strip_path: false
-      - name: media-static-uploads
-        paths:
-          - /uploads
-        strip_path: false
+      # No local uploads route - media is populated via TMDB seeding
 
   # ============================================
   # AUTH SERVICE - Onboarding (nested in auth)
@@ -147,4 +144,4 @@ services:
       - name: onboarding-routes
         paths:
           - /api/onboarding
-        strip_path: true
+        strip_path: false

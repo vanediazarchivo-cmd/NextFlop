@@ -42,9 +42,12 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("api/docs", app, document);
+  // Mount docs at /api/docs (global prefix will be applied)
+  SwaggerModule.setup("docs", app, document);
 
   const port = process.env.PORT || 3002;
+  // Expose all subscription endpoints under /api/* so Gateway /api routes can reach them
+  app.setGlobalPrefix('api');
   // Run DB seeders (idempotent) after app created
   try {
     const seeder = app.get(SubscriptionPlanSeeder);

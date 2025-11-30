@@ -155,17 +155,5 @@ export const mediaService = {
     return apiFetch<string[]>('/media/genres')
   },
 
-  /**
-   * Uploads a file to the media service and returns the accessible URL
-   */
-  async uploadFile(file: File): Promise<{ url: string | null }> {
-    const form = new FormData()
-    form.append('file', file)
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/media/upload`, {
-      method: 'POST',
-      body: form,
-    })
-    if (!res.ok) throw new Error('Failed to upload')
-    return res.json()
-  }
+  // Uploads are handled by TMDB seeding; no manual upload endpoints.
 }

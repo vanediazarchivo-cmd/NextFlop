@@ -40,10 +40,13 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("api/docs", app, document);
+  // Mount docs at /api/docs (global prefix will be applied)
+  SwaggerModule.setup("docs", app, document);
 
   // Usamos el puerto definido en el .env o en docker-compose, con un fallback a 3001 para desarrollo local
   const port = process.env.PORT || 3001; 
+  // Set a global API prefix so the microservice accepts /api/* requests forwarded by the gateway
+  app.setGlobalPrefix('api');
   await app.listen(port);
 
   console.log(`🚀 Auth Service running on port ${port}`);
