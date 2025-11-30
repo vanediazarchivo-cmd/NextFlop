@@ -93,20 +93,4 @@ export function MovieModal({ isOpen, onClose, movie }: MovieModalProps) {
     </>
   )
 }
-                <Heart className={`h-5 w-5 ${isFavorite ? 'fill-current' : ''}`} />
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
 
-      <ActionPopup
-        isOpen={showPopup}
-        onClose={() => setShowPopup(false)}
-        message={popupMessage}
-        type="success"
-        icon={popupIcon}
-      />
-    </>
-  )
-}

@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -27,9 +27,7 @@ export function ContentCarousel({ title, items, onItemClick }: ContentCarouselPr
     const container = document.getElementById(`carousel-${title.replace(/\s+/g, '-')}`)
     if (container) {
       const scrollAmount = 400
-      const newPosition = direction === 'left' 
-        ? scrollPosition - scrollAmount 
-        : scrollPosition + scrollAmount
+      const newPosition = direction === 'left' ? scrollPosition - scrollAmount : scrollPosition + scrollAmount
       container.scrollTo({ left: newPosition, behavior: 'smooth' })
       setScrollPosition(newPosition)
     }
@@ -57,24 +55,15 @@ export function ContentCarousel({ title, items, onItemClick }: ContentCarouselPr
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold">{title}</h2>
           <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => scroll('left')}
-              className="h-8 w-8"
-            >
+            <Button variant="ghost" size="icon" onClick={() => scroll('left')} className="h-8 w-8">
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => scroll('right')}
-              className="h-8 w-8"
-            >
+            <Button variant="ghost" size="icon" onClick={() => scroll('right')} className="h-8 w-8">
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
+
         <div
           id={`carousel-${title.replace(/\s+/g, '-')}`}
           className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
@@ -95,8 +84,8 @@ export function ContentCarousel({ title, items, onItemClick }: ContentCarouselPr
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <div className="absolute bottom-0 left-0 right-0 p-3 space-y-2">
                     <div className="flex gap-2">
-                      <Button 
-                        size="icon" 
+                      <Button
+                        size="icon"
                         className="h-9 w-9 rounded-full bg-white text-black hover:bg-white/90"
                         onClick={(e) => {
                           e.stopPropagation()
@@ -105,25 +94,25 @@ export function ContentCarousel({ title, items, onItemClick }: ContentCarouselPr
                       >
                         <Play className="h-4 w-4 fill-current" />
                       </Button>
-                      <Button 
-                        size="icon" 
-                        variant="outline" 
+                      <Button
+                        size="icon"
+                        variant="outline"
                         className="h-9 w-9 rounded-full bg-transparent border-white hover:bg-white/20"
                         onClick={(e) => handleAddToFavorites(e, item.title)}
                       >
                         <Heart className="h-4 w-4" />
                       </Button>
-                      <Button 
-                        size="icon" 
-                        variant="outline" 
+                      <Button
+                        size="icon"
+                        variant="outline"
                         className="h-9 w-9 rounded-full bg-transparent border-white hover:bg-white/20"
                         onClick={(e) => handleAddToWatchLater(e, item.title)}
                       >
                         <Clock className="h-4 w-4" />
                       </Button>
-                      <Button 
-                        size="icon" 
-                        variant="outline" 
+                      <Button
+                        size="icon"
+                        variant="outline"
                         className="h-9 w-9 rounded-full bg-transparent border-white hover:bg-white/20 ml-auto"
                         onClick={(e) => {
                           e.stopPropagation()
@@ -136,24 +125,13 @@ export function ContentCarousel({ title, items, onItemClick }: ContentCarouselPr
                   </div>
                 </div>
               </div>
-              <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
-                {item.title}
-              </p>
+              <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">{item.title}</p>
             </div>
           ))}
         </div>
       </div>
 
-      <ActionPopup
-        isOpen={showPopup}
-        onClose={() => setShowPopup(false)}
-        message={popupMessage}
-        type="success"
-        icon={popupIcon}
-      />
-    </>
-  )
-}
+      <ActionPopup isOpen={showPopup} onClose={() => setShowPopup(false)} message={popupMessage} type="success" icon={popupIcon} />
     </>
   )
 }
