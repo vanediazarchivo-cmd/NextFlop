@@ -26,7 +26,7 @@ export default function LoginPage() {
 
     try {
       // Llamada real al backend vía Kong
-      const data = await apiFetch('/api/auth/login', {
+      const data = await apiFetch('/auth/login', {
         method: 'POST',
         body: JSON.stringify({ email, password }),
       })
