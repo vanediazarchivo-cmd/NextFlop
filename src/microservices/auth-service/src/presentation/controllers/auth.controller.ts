@@ -6,7 +6,7 @@ import { RegisterDto } from "../dtos/auth/register.dto";
 import { LoginDto } from "../dtos/auth/login.dto";
 
 @ApiTags("auth")
-@Controller()
+@Controller("auth")
 export class AuthController {
   constructor(
     private readonly registerUseCase: RegisterUseCase,

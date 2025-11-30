@@ -19,7 +19,7 @@ import { CreateMediaDto as CreateMediaPresentationDto } from "../dtos/media/crea
 import { CreateMediaDto as CreateMediaAppDto } from "../../application/dto/media.dto";
 
 @ApiTags("Media")
-@Controller()
+@Controller("media")
 export class MediaController {
   constructor(
     private readonly createMediaUseCase: CreateMediaUseCase,

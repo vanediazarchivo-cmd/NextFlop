@@ -12,7 +12,7 @@ import { DeleteProfileUseCase } from "../../application/use-cases/profiles/delet
 import { AddToListDto } from "../dtos/profile/add-to-list.dto"; // <-- 1. IMPORTAR EL NUEVO DTO
 
 @ApiTags("profiles")
-@Controller()
+@Controller("profiles")
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class ProfilesController {

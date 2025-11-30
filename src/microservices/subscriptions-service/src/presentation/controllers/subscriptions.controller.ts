@@ -20,7 +20,7 @@ import { Subscription } from "../../domain/entities/subscription.entity";
 
 
 @ApiTags("Subscriptions")
-@Controller()
+@Controller("subscriptions")
 export class SubscriptionsController {
   constructor(
     private readonly createSubscriptionUseCase: CreateSubscriptionUseCase,
