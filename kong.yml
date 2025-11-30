@@ -33,12 +33,22 @@ services:
       - name: auth-routes
         paths:
           - /api/auth
+          - /auth
         strip_path: true
+      - name: auth-routes-plain
+        paths:
+          - /auth
+        strip_path: false
       # Profiles endpoints: /api/profiles/*
       - name: profiles-routes
         paths:
           - /api/profiles
+          - /profiles
         strip_path: true
+      - name: profiles-routes-plain
+        paths:
+          - /profiles
+        strip_path: false
 
   # ============================================
   # SUBSCRIPTIONS SERVICE - Plans & Subscriptions
@@ -50,12 +60,24 @@ services:
       - name: subscription-plans-routes
         paths:
           - /api/subscription-plans
+          - /subscription-plans
+          - /api/plans
+          - /plans
         strip_path: true
+      - name: subscription-plans-routes-plain
+        paths:
+          - /plans
+        strip_path: false
       # User subscriptions: /api/subscriptions/*
       - name: subscriptions-routes
         paths:
           - /api/subscriptions
+          - /subscriptions
         strip_path: true
+      - name: subscriptions-routes-plain
+        paths:
+          - /subscriptions
+        strip_path: false
 
   # ============================================
   # BILLING SERVICE - Payments, billing
@@ -67,17 +89,32 @@ services:
       - name: payments-routes
         paths:
           - /api/payments
+          - /payments
         strip_path: true
+      - name: payments-routes-plain
+        paths:
+          - /payments
+        strip_path: false
       # Payment methods: /api/payment-methods/*
       - name: payment-methods-routes
         paths:
           - /api/payment-methods
+          - /payment-methods
         strip_path: true
+      - name: payment-methods-routes-plain
+        paths:
+          - /payment-methods
+        strip_path: false
       # Billing endpoints: /api/billing/*
       - name: billing-routes
         paths:
           - /api/billing
+          - /billing
         strip_path: true
+      - name: billing-routes-plain
+        paths:
+          - /billing
+        strip_path: false
 
   # ============================================
   # MEDIA SERVICE - Catalog, search, media
@@ -89,7 +126,12 @@ services:
       - name: media-routes
         paths:
           - /api/media
+          - /media
         strip_path: true
+      - name: media-routes-plain
+        paths:
+          - /media
+        strip_path: false
       - name: media-static-uploads
         paths:
           - /uploads

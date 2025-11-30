@@ -69,8 +69,7 @@ export async function apiFetch<T = any>(
   // 👉 Se asegura que los paths siempre empiecen con "/"
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
 
-  // Aseguramos que todas las llamadas al Gateway usen el prefijo /api.
-  // Esto centraliza el prefijo en un solo punto y evita inconsistencias con rutas en Kong.
+  // Añadimos el prefijo /api para centralizar todas las llamadas al API Gateway.
   const url = `${API_URL}/api${normalizedPath}`;
 
   const res = await fetch(url, {

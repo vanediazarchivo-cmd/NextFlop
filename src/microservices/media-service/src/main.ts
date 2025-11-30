@@ -46,13 +46,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config)
   SwaggerModule.setup("api/docs", app, document)
 
-  // Serve uploaded files from /uploads via express static
-  const uploadsPath = join(process.cwd(), 'uploads')
-  // Ensure uploads folder exists
-  if (!fs.existsSync(uploadsPath)) {
-    fs.mkdirSync(uploadsPath, { recursive: true })
-  }
-  app.useStaticAssets(uploadsPath, { prefix: '/uploads' })
+  // No local uploads serving any more; posters will be externally hosted (e.g., TMDB)
 
   const port = process.env.PORT || 3004
   await app.listen(port)
