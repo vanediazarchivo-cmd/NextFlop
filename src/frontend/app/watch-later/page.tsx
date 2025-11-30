@@ -3,11 +3,18 @@
 import { useState, useEffect } from 'react'
 import { AppHeader } from '@/components/app-header'
 import { Button } from '@/components/ui/button'
-import { Clock, Play } from 'lucide-react'
+import { Clock, Play, Trash2 } from 'lucide-react'
 import { ActionPopup } from '@/components/action-popup'
 import { ConfirmationDialog } from '@/components/confirmation-dialog'
 import { profilesService } from '@/services/profiles.service'
 import { mediaService, type Media } from '@/services/media.service'
+
+function formatDuration(minutes?: number) {
+  if (!minutes || minutes <= 0) return ''
+  const hrs = Math.floor(minutes / 60)
+  const mins = minutes % 60
+  return hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`
+}
 
 export default function WatchLaterPage() {
   const [items, setItems] = useState<Media[]>([])
@@ -97,7 +104,7 @@ export default function WatchLaterPage() {
                 <div key={item.id} className="group">
                   <div className="relative aspect-[2/3] rounded-lg overflow-hidden mb-3">
                     <img
-                      src={item.image || "/placeholder.svg"}
+                      src={item.posterUrl || "/placeholder.svg"}
                       alt={item.title}
                       className="w-full h-full object-cover transition-transform group-hover:scale-105"
                     />
@@ -115,14 +122,14 @@ export default function WatchLaterPage() {
                       </Button>
                     </div>
                     <div className="absolute top-2 right-2 bg-black/80 backdrop-blur-sm px-2 py-1 rounded text-xs font-medium">
-                      {item.duration}
+                      {formatDuration(item.duration)}
                     </div>
                   </div>
                   <h3 className="font-semibold mb-1 line-clamp-2 group-hover:text-primary transition-colors">
                     {item.title}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Agregado el {new Date(item.addedDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                    {item.releaseYear}
                   </p>
                 </div>
               ))}

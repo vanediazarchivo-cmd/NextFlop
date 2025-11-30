@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AppHeader } from '@/components/app-header'
 import { Input } from '@/components/ui/input'
 import { Search, TrendingUp } from 'lucide-react'
 import { MovieModal } from '@/components/movie-modal'
+import { mediaService, type Media } from '@/services/media.service'
 
 const suggestions = [
   { id: '1', text: 'Películas de acción', type: 'genre' },
@@ -17,32 +18,46 @@ const suggestions = [
   { id: '8', text: 'Series de Netflix', type: 'popular' },
 ]
 
-const mockResults = Array.from({ length: 12 }, (_, i) => ({
-  id: `result-${i + 1}`,
-  title: `Resultado ${i + 1}`,
-  image: `/placeholder.svg?height=450&width=300&query=search+result+${i + 1}`,
-}))
-
 export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedMovie, setSelectedMovie] = useState<any>(null)
+  const [selectedMovie, setSelectedMovie] = useState<Media | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [results, setResults] = useState<Media[]>([])
+  const [isSearching, setIsSearching] = useState(false)
 
   const handleSuggestionClick = (text: string) => {
     setSearchQuery(text)
   }
 
-  const handleResultClick = (item: any) => {
-    setSelectedMovie({
-      id: item.id,
-      title: item.title,
-      description: 'Una película o serie interesante que coincide con tu búsqueda.',
-      genre: 'Varios',
-      year: '2025',
-      image: item.image,
-    })
+  const handleResultClick = (item: Media) => {
+    setSelectedMovie(item)
     setIsModalOpen(true)
   }
+
+  useEffect(() => {
+    const controller = new AbortController()
+    const timer = setTimeout(async () => {
+      if (!searchQuery || searchQuery.trim().length < 2) {
+        setResults([])
+        return
+      }
+      try {
+        setIsSearching(true)
+        const resp = await mediaService.search(searchQuery, { limit: 24 })
+        setResults(resp.items)
+      } catch (err) {
+        console.error('Search error', err)
+        setResults([])
+      } finally {
+        setIsSearching(false)
+      }
+    }, 300)
+
+    return () => {
+      clearTimeout(timer)
+      controller.abort()
+    }
+  }, [searchQuery])
 
   return (
     <div className="min-h-screen bg-background">
@@ -90,7 +105,7 @@ export default function SearchPage() {
                     Resultados para "{searchQuery}"
                   </h2>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {mockResults.map((item) => (
+                    {results.map((item) => (
                       <div
                         key={item.id}
                         className="cursor-pointer group"
@@ -98,7 +113,7 @@ export default function SearchPage() {
                       >
                         <div className="relative aspect-[2/3] rounded-lg overflow-hidden mb-2 transition-transform group-hover:scale-105">
                           <img
-                            src={item.image || "/placeholder.svg"}
+                            src={item.posterUrl || "/placeholder.svg"}
                             alt={item.title}
                             className="w-full h-full object-cover"
                           />
