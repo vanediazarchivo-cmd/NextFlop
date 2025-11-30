@@ -5,6 +5,8 @@ plugins:
     config:
       origins:
         - http://localhost:3000
+        - http://localhost
+        - "*"
       methods:
         - GET
         - POST
@@ -21,47 +23,81 @@ plugins:
       max_age: 3600
 
 services:
-
-  # AUTH SERVICE
+  # ============================================
+  # AUTH SERVICE - User authentication, profiles
+  # ============================================
   - name: auth-service
     url: http://auth-service:3000
     routes:
+      # Auth endpoints: /api/auth/*
       - name: auth-routes
         paths:
           - /api/auth
         strip_path: true
+      # Profiles endpoints: /api/profiles/*
+      - name: profiles-routes
+        paths:
+          - /api/profiles
+        strip_path: true
 
-  # SUBSCRIPTIONS SERVICE
+  # ============================================
+  # SUBSCRIPTIONS SERVICE - Plans & Subscriptions
+  # ============================================
   - name: subscriptions-service
     url: http://subscriptions-service:3000
     routes:
+      # Subscription plans: /api/subscription-plans/*
+      - name: subscription-plans-routes
+        paths:
+          - /api/subscription-plans
+        strip_path: true
+      # User subscriptions: /api/subscriptions/*
       - name: subscriptions-routes
         paths:
           - /api/subscriptions
         strip_path: true
 
-  # BILLING SERVICE
+  # ============================================
+  # BILLING SERVICE - Payments, billing
+  # ============================================
   - name: billing-service
     url: http://billing-service:3000
     routes:
+      # Payment endpoints: /api/payments/*
+      - name: payments-routes
+        paths:
+          - /api/payments
+        strip_path: true
+      # Payment methods: /api/payment-methods/*
+      - name: payment-methods-routes
+        paths:
+          - /api/payment-methods
+        strip_path: true
+      # Billing endpoints: /api/billing/*
       - name: billing-routes
         paths:
           - /api/billing
         strip_path: true
 
-  # MEDIA SERVICE
+  # ============================================
+  # MEDIA SERVICE - Catalog, search, media
+  # ============================================
   - name: media-service
     url: http://media-service:3000
     routes:
+      # Media endpoints: /api/media/*
       - name: media-routes
         paths:
           - /api/media
         strip_path: true
 
-  # ⭐ ONBOARDING SERVICE
+  # ============================================
+  # AUTH SERVICE - Onboarding (nested in auth)
+  # ============================================
   - name: onboarding-service
-    url: http://auth-service:3000   # si vive dentro del auth-service
+    url: http://auth-service:3000
     routes:
+      # Onboarding endpoints: /api/onboarding/*
       - name: onboarding-routes
         paths:
           - /api/onboarding

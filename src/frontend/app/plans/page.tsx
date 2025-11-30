@@ -1,58 +1,29 @@
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Play, Check, X } from 'lucide-react'
-
-const plans = [
-  {
-    id: 'basic',
-    name: 'Básico',
-    price: 9.99,
-    color: 'primary',
-    features: [
-      { name: 'Calidad HD (720p)', included: true },
-      { name: '1 dispositivo simultáneo', included: true },
-      { name: 'Catálogo completo', included: true },
-      { name: 'Descargas', included: false },
-      { name: 'Audio Dolby Atmos', included: false },
-      { name: 'Calidad 4K', included: false },
-      { name: '50 puntos por renovación', included: true }
-    ]
-  },
-  {
-    id: 'medium',
-    name: 'Medium',
-    price: 14.99,
-    color: 'secondary',
-    recommended: true,
-    features: [
-      { name: 'Calidad Full HD (1080p)', included: true },
-      { name: '2 dispositivos simultáneos', included: true },
-      { name: 'Catálogo completo', included: true },
-      { name: 'Descargas ilimitadas', included: true },
-      { name: 'Audio Dolby Atmos', included: false },
-      { name: 'Calidad 4K', included: false },
-      { name: '100 puntos por renovación', included: true }
-    ]
-  },
-  {
-    id: 'premium',
-    name: 'Premium',
-    price: 19.99,
-    color: 'accent',
-    features: [
-      { name: 'Calidad 4K Ultra HD', included: true },
-      { name: '4 dispositivos simultáneos', included: true },
-      { name: 'Catálogo completo', included: true },
-      { name: 'Descargas ilimitadas', included: true },
-      { name: 'Audio Dolby Atmos', included: true },
-      { name: 'Calidad 4K', included: true },
-      { name: '200 puntos por renovación', included: true }
-    ]
-  }
-]
+import { subscriptionsService, type SubscriptionPlan } from '@/services'
 
 export default function PlansPage() {
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const loadPlans = async () => {
+      try {
+        setIsLoading(true)
+        const data = await subscriptionsService.getPlans()
+        setPlans(data)
+      } catch (error) {
+        console.error('Error loading plans:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadPlans()
+  }, [])
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}

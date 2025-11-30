@@ -5,18 +5,12 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Clock, Heart, Play, X } from 'lucide-react'
 import { ActionPopup } from '@/components/action-popup'
+import { type Media } from '@/services/media.service'
 
 interface MovieModalProps {
   isOpen: boolean
   onClose: () => void
-  movie?: {
-    id: string
-    title: string
-    description: string
-    genre: string
-    year: string
-    image: string
-  }
+  movie?: Media | null
 }
 
 export function MovieModal({ isOpen, onClose, movie }: MovieModalProps) {
@@ -48,7 +42,7 @@ export function MovieModal({ isOpen, onClose, movie }: MovieModalProps) {
         <DialogContent className="max-w-3xl p-0 overflow-hidden">
           <div className="relative aspect-video">
             <img
-              src={movie.image || "/placeholder.svg"}
+              src={movie.posterUrl || "/placeholder.svg"}
               alt={movie.title}
               className="w-full h-full object-cover"
             />
@@ -57,9 +51,11 @@ export function MovieModal({ isOpen, onClose, movie }: MovieModalProps) {
           <div className="p-6">
             <DialogTitle className="text-3xl font-bold mb-2">{movie.title}</DialogTitle>
             <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-              <span>{movie.year}</span>
+              <span>{movie.releaseYear}</span>
               <span>•</span>
-              <span>{movie.genre}</span>
+              <span>{movie.type}</span>
+              <span>•</span>
+              <span>{movie.genres.join(', ')}</span>
             </div>
             <p className="text-muted-foreground mb-6 leading-relaxed">
               {movie.description}
@@ -79,6 +75,24 @@ export function MovieModal({ isOpen, onClose, movie }: MovieModalProps) {
                 onClick={handleToggleFavorite}
                 className={isFavorite ? "bg-red-500 hover:bg-red-600" : ""}
               >
+                <Heart className={`h-5 w-5 mr-2 ${isFavorite ? 'fill-current' : ''}`} />
+                {isFavorite ? 'En Favoritos' : 'Agregar a Favoritos'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      <ActionPopup
+        isOpen={showPopup}
+        onClose={() => setShowPopup(false)}
+        message={popupMessage}
+        type="success"
+        icon={popupIcon}
+      />
+    </>
+  )
+}
                 <Heart className={`h-5 w-5 ${isFavorite ? 'fill-current' : ''}`} />
               </Button>
             </div>

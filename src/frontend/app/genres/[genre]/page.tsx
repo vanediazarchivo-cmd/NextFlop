@@ -1,43 +1,42 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AppHeader } from '@/components/app-header'
 import { MovieModal } from '@/components/movie-modal'
 import { useParams } from 'next/navigation'
-
-// Mock data
-const genreContent: Record<string, any[]> = {
-  action: Array.from({ length: 24 }, (_, i) => ({
-    id: `action-${i + 1}`,
-    title: `Película de Acción ${i + 1}`,
-    image: `/placeholder.svg?height=450&width=300&query=action+movie+${i + 1}`,
-  })),
-  comedy: Array.from({ length: 24 }, (_, i) => ({
-    id: `comedy-${i + 1}`,
-    title: `Comedia ${i + 1}`,
-    image: `/placeholder.svg?height=450&width=300&query=comedy+movie+${i + 1}`,
-  })),
-  // Add more genres as needed
-}
+import { mediaService, type Media } from '@/services/media.service'
 
 export default function GenrePage() {
   const params = useParams()
-  const genre = params.genre as string
-  const [selectedMovie, setSelectedMovie] = useState<any>(null)
+  const genre = (params?.genre as string) || ''
+  const [items, setItems] = useState<Media[]>([])
+  const [selectedMovie, setSelectedMovie] = useState<Media | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const content = genreContent[genre] || []
-  const genreName = genre.charAt(0).toUpperCase() + genre.slice(1)
+  const genreName = genre ? genre.charAt(0).toUpperCase() + genre.slice(1) : ''
 
-  const handleItemClick = (item: any) => {
-    setSelectedMovie({
-      id: item.id,
-      title: item.title,
-      description: `Una increíble ${genreName.toLowerCase()} que te mantendrá entretenido de principio a fin.`,
-      genre: genreName,
-      year: '2025',
-      image: item.image,
-    })
+  useEffect(() => {
+    const load = async () => {
+      if (!genre) return
+      try {
+        setIsLoading(true)
+        // Obtener hasta 24 elementos del género
+        const list = await mediaService.getByGenre(genre, 24)
+        setItems(list)
+      } catch (error) {
+        console.error('Error loading genre content', error)
+        setItems([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    load()
+  }, [genre])
+
+  const handleItemClick = (item: Media) => {
+    setSelectedMovie(item)
     setIsModalOpen(true)
   }
 
@@ -54,26 +53,30 @@ export default function GenrePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {content.map((item) => (
-              <div
-                key={item.id}
-                className="cursor-pointer group"
-                onClick={() => handleItemClick(item)}
-              >
-                <div className="relative aspect-[2/3] rounded-lg overflow-hidden mb-2 transition-transform group-hover:scale-105">
-                  <img
-                    src={item.image || "/placeholder.svg"}
-                    alt={item.title}
-                    className="w-full h-full object-cover"
-                  />
+          {isLoading ? (
+            <div className="py-20 text-center text-muted-foreground">Cargando contenido...</div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {items.map((item) => (
+                <div
+                  key={item.id}
+                  className="cursor-pointer group"
+                  onClick={() => handleItemClick(item)}
+                >
+                  <div className="relative aspect-[2/3] rounded-lg overflow-hidden mb-2 transition-transform group-hover:scale-105">
+                    <img
+                      src={item.posterUrl || "/placeholder.svg"}
+                      alt={item.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
+                    {item.title}
+                  </p>
                 </div>
-                <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
-                  {item.title}
-                </p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </main>
 

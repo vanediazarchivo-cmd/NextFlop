@@ -1,42 +1,85 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AppHeader } from '@/components/app-header'
 import { Button } from '@/components/ui/button'
-import { Heart, Trash2, Play } from 'lucide-react'
+import { Heart, Play } from 'lucide-react'
 import { ActionPopup } from '@/components/action-popup'
 import { ConfirmationDialog } from '@/components/confirmation-dialog'
-
-// Mock data
-const mockFavorites = [
-  { id: '1', title: 'Acción Extrema', image: '/action-movie.png', addedDate: '2025-01-15', rating: 4.8 },
-  { id: '2', title: 'Drama Intenso', image: '/intense-drama-scene.png', addedDate: '2025-01-14', rating: 4.5 },
-  { id: '3', title: 'Comedia Romántica', image: '/romantic-comedy.jpg', addedDate: '2025-01-13', rating: 4.2 },
-  { id: '4', title: 'Thriller Psicológico', image: '/psychological-thriller.jpg', addedDate: '2025-01-12', rating: 4.7 },
-  { id: '5', title: 'Sci-Fi Épico', image: '/epic-sci-fi.jpg', addedDate: '2025-01-10', rating: 4.9 },
-  { id: '6', title: 'Terror Nocturno', image: '/horror-movie.png', addedDate: '2025-01-08', rating: 4.3 },
-  { id: '7', title: 'Aventura Fantástica', image: '/epic-movie-scene.jpg', addedDate: '2025-01-05', rating: 4.6 },
-  { id: '8', title: 'Romance Histórico', image: '/dramatic-tv-series.png', addedDate: '2025-01-03', rating: 4.4 },
-]
+import { profilesService } from '@/services/profiles.service'
+import { mediaService, type Media } from '@/services/media.service'
 
 export default function FavoritesPage() {
-  const [items, setItems] = useState(mockFavorites)
+  const [items, setItems] = useState<Media[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [showPopup, setShowPopup] = useState(false)
   const [popupMessage, setPopupMessage] = useState('')
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [itemToRemove, setItemToRemove] = useState<string | null>(null)
+  const [currentProfileId, setCurrentProfileId] = useState<string>('')
+
+  useEffect(() => {
+    const loadFavorites = async () => {
+      try {
+        setIsLoading(true)
+        
+        // Obtener el perfil actual del localStorage
+        const profileId = localStorage.getItem('currentProfileId') || ''
+        if (!profileId) {
+          console.error('No profile selected')
+          setIsLoading(false)
+          return
+        }
+        
+        setCurrentProfileId(profileId)
+        
+        // Obtener perfil (que contiene array de IDs de favoritos)
+        const profile = await profilesService.getProfile(profileId)
+        
+        // Para cada ID de favorito, obtener los datos completos de la película
+        const favoriteItems = await Promise.all(
+          profile.favorites.map(mediaId =>
+            mediaService.getDetail(mediaId).catch(() => null)
+          )
+        )
+        
+        // Filtrar los que no se pudieron obtener
+        const validItems = favoriteItems.filter((item): item is Media => item !== null)
+        setItems(validItems)
+      } catch (error) {
+        console.error('Error loading favorites:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    loadFavorites()
+  }, [])
 
   const handleRemove = (id: string) => {
     setItemToRemove(id)
     setShowConfirmDialog(true)
   }
 
-  const confirmRemove = () => {
-    if (itemToRemove) {
+  const confirmRemove = async () => {
+    if (!itemToRemove || !currentProfileId) return
+    
+    try {
+      // Eliminar del backend
+      await profilesService.removeFromFavorites(currentProfileId, itemToRemove)
+      
+      // Eliminar de la lista local
       setItems(items.filter(item => item.id !== itemToRemove))
+      
       setPopupMessage('Eliminado de Favoritos')
       setShowPopup(true)
       setTimeout(() => setShowPopup(false), 3000)
+    } catch (error) {
+      console.error('Error removing favorite:', error)
+      setPopupMessage('Error al eliminar favorito')
+      setShowPopup(true)
+      setTimeout(() => setShowPopup(false), 3000)
+    } finally {
       setItemToRemove(null)
     }
   }
@@ -71,7 +114,7 @@ export default function FavoritesPage() {
                 <div key={item.id} className="group">
                   <div className="relative aspect-[2/3] rounded-lg overflow-hidden mb-3">
                     <img
-                      src={item.image || "/placeholder.svg"}
+                      src={item.posterUrl || "/placeholder.svg"}
                       alt={item.title}
                       className="w-full h-full object-cover transition-transform group-hover:scale-105"
                     />
@@ -100,7 +143,7 @@ export default function FavoritesPage() {
                     {item.title}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Agregado el {new Date(item.addedDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                    {item.releaseYear}
                   </p>
                 </div>
               ))}

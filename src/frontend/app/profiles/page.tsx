@@ -1,21 +1,33 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Play, Plus, Settings } from 'lucide-react'
-
-// Mock profile data
-const mockProfiles = [
-  { id: '1', name: 'Juan', icon: '👨' },
-  { id: '2', name: 'María', icon: '👩' },
-  { id: '3', name: 'Kids', icon: '🧒' }
-]
+import { profilesService, type Profile } from '@/services'
 
 export default function ProfilesPage() {
   const router = useRouter()
-  const [profiles] = useState(mockProfiles)
+  const [profiles, setProfiles] = useState<Profile[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const loadProfiles = async () => {
+      try {
+        setIsLoading(true)
+        const data = await profilesService.getMyProfiles()
+        setProfiles(data)
+      } catch (error) {
+        console.error('Error loading profiles:', error)
+        // Si hay error, mostrar array vacío y permitir crear perfil
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadProfiles()
+  }, [])
 
   const handleProfileClick = (profileId: string) => {
     // Store selected profile in localStorage or state management

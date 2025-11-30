@@ -5,13 +5,15 @@ import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight, Heart, Clock, Play, Info } from 'lucide-react'
 import { ActionPopup } from '@/components/action-popup'
 
+interface ContentItem {
+  id: string
+  title: string
+  image?: string
+}
+
 interface ContentCarouselProps {
   title: string
-  items: {
-    id: string
-    title: string
-    image: string
-  }[]
+  items: ContentItem[]
   onItemClick?: (id: string) => void
 }
 
@@ -149,6 +151,9 @@ export function ContentCarousel({ title, items, onItemClick }: ContentCarouselPr
         type="success"
         icon={popupIcon}
       />
+    </>
+  )
+}
     </>
   )
 }

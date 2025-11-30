@@ -1,73 +1,73 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AppHeader } from '@/components/app-header'
 import { HeroCarousel } from '@/components/hero-carousel'
 import { ContentCarousel } from '@/components/content-carousel'
 import { ContinueWatching } from '@/components/continue-watching'
 import { MovieModal } from '@/components/movie-modal'
-
-// Mock data
-const recommendedItems = [
-  { id: '1', title: 'Acción Extrema', image: '/action-movie.png' },
-  { id: '2', title: 'Drama Intenso', image: '/intense-drama-scene.png' },
-  { id: '3', title: 'Comedia Romántica', image: '/romantic-comedy.jpg' },
-  { id: '4', title: 'Thriller Psicológico', image: '/psychological-thriller.jpg' },
-  { id: '5', title: 'Sci-Fi Épico', image: '/epic-sci-fi.jpg' },
-  { id: '6', title: 'Terror Nocturno', image: '/horror-movie.png' },
-]
-
-const trendingItems = [
-  { id: '7', title: 'En Tendencia 1', image: '/epic-movie-scene.jpg' },
-  { id: '8', title: 'En Tendencia 2', image: '/new-movie-release.jpg' },
-  { id: '9', title: 'En Tendencia 3', image: '/trending-movie-3.jpg' },
-  { id: '10', title: 'En Tendencia 4', image: '/trending-movie-4.jpg' },
-  { id: '11', title: 'En Tendencia 5', image: '/trending-movie-5.jpg' },
-  { id: '12', title: 'En Tendencia 6', image: '/trending-movie-6.jpg' },
-]
-
-const popularItems = [
-  { id: '13', title: 'Popular 1', image: '/dramatic-tv-series.png' },
-  { id: '14', title: 'Popular 2', image: '/popular-series-2.jpg' },
-  { id: '15', title: 'Popular 3', image: '/popular-movie-3.jpg' },
-  { id: '16', title: 'Popular 4', image: '/popular-movie-4.jpg' },
-  { id: '17', title: 'Popular 5', image: '/popular-movie-5.jpg' },
-  { id: '18', title: 'Popular 6', image: '/popular-movie-6.jpg' },
-]
-
-const acclaimedItems = [
-  { id: '19', title: 'Aclamada 1', image: '/documentary-scene.png' },
-  { id: '20', title: 'Aclamada 2', image: '/acclaimed-movie-2.jpg' },
-  { id: '21', title: 'Aclamada 3', image: '/acclaimed-movie-3.jpg' },
-  { id: '22', title: 'Aclamada 4', image: '/acclaimed-movie-4.jpg' },
-  { id: '23', title: 'Aclamada 5', image: '/acclaimed-movie-5.jpg' },
-  { id: '24', title: 'Aclamada 6', image: '/placeholder.svg?height=450&width=300' },
-]
-
-const newReleases = [
-  { id: '25', title: 'Nuevo 1', image: '/placeholder.svg?height=450&width=300' },
-  { id: '26', title: 'Nuevo 2', image: '/placeholder.svg?height=450&width=300' },
-  { id: '27', title: 'Nuevo 3', image: '/placeholder.svg?height=450&width=300' },
-  { id: '28', title: 'Nuevo 4', image: '/placeholder.svg?height=450&width=300' },
-  { id: '29', title: 'Nuevo 5', image: '/placeholder.svg?height=450&width=300' },
-  { id: '30', title: 'Nuevo 6', image: '/placeholder.svg?height=450&width=300' },
-]
+import { mediaService, type Media } from '@/services/media.service'
 
 export default function HomePage() {
-  const [selectedMovie, setSelectedMovie] = useState<any>(null)
+  const [selectedMovie, setSelectedMovie] = useState<Media | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  
+  // Estado para cada sección
+  const [recommendedItems, setRecommendedItems] = useState<Media[]>([])
+  const [trendingItems, setTrendingItems] = useState<Media[]>([])
+  const [popularItems, setPopularItems] = useState<Media[]>([])
+  const [acclaimedItems, setAcclaimedItems] = useState<Media[]>([])
+  const [newReleases, setNewReleases] = useState<Media[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  const handleItemClick = (id: string) => {
-    // Mock movie data
-    setSelectedMovie({
-      id,
-      title: 'Película Ejemplo',
-      description: 'Una historia emocionante llena de acción, drama y suspenso. Esta película te mantendrá al borde de tu asiento desde el primer minuto hasta el último.',
-      genre: 'Acción, Drama',
-      year: '2025',
-      image: '/epic-movie-scene.jpg',
-    })
+  useEffect(() => {
+    const loadContent = async () => {
+      try {
+        setIsLoading(true)
+        const [
+          recommended,
+          trending,
+          popular,
+          acclaimed,
+          newRel,
+        ] = await Promise.all([
+          mediaService.getRecommended(6),
+          mediaService.getTrending(6),
+          mediaService.getPopular(6),
+          mediaService.getAcclaimed(6),
+          mediaService.getNewReleases(6),
+        ])
+
+        setRecommendedItems(recommended)
+        setTrendingItems(trending)
+        setPopularItems(popular)
+        setAcclaimedItems(acclaimed)
+        setNewReleases(newRel)
+      } catch (error) {
+        console.error('Error loading home content:', error)
+        // Mantener arrays vacíos si hay error
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadContent()
+  }, [])
+
+  const handleItemClick = (media: Media) => {
+    setSelectedMovie(media)
     setIsModalOpen(true)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <AppHeader />
+        <main className="pt-32 flex items-center justify-center">
+          <p className="text-muted-foreground">Cargando contenido...</p>
+        </main>
+      </div>
+    )
   }
 
   return (
@@ -85,39 +85,64 @@ export default function HomePage() {
             <ContinueWatching />
 
             {/* Recommended Section */}
-            <ContentCarousel
-              title="Recomendado para ti"
-              items={recommendedItems}
-              onItemClick={handleItemClick}
-            />
+            {recommendedItems.length > 0 && (
+              <ContentCarousel
+                title="Recomendado para ti"
+                items={recommendedItems.map(m => ({ id: m.id, title: m.title, image: m.posterUrl }))}
+                onItemClick={(id) => {
+                  const media = recommendedItems.find(m => m.id === id)
+                  if (media) handleItemClick(media)
+                }}
+              />
+            )}
 
             {/* Trending Section */}
-            <ContentCarousel
-              title="En tendencia"
-              items={trendingItems}
-              onItemClick={handleItemClick}
-            />
+            {trendingItems.length > 0 && (
+              <ContentCarousel
+                title="En tendencia"
+                items={trendingItems.map(m => ({ id: m.id, title: m.title, image: m.posterUrl }))}
+                onItemClick={(id) => {
+                  const media = trendingItems.find(m => m.id === id)
+                  if (media) handleItemClick(media)
+                }}
+              />
+            )}
 
             {/* Popular This Week */}
-            <ContentCarousel
-              title="Populares esta semana"
-              items={popularItems}
-              onItemClick={handleItemClick}
-            />
+            {popularItems.length > 0 && (
+              <ContentCarousel
+                title="Populares esta semana"
+                items={popularItems.map(m => ({ id: m.id, title: m.title, image: m.posterUrl }))}
+                onItemClick={(id) => {
+                  const media = popularItems.find(m => m.id === id)
+                  if (media) handleItemClick(media)
+                }}
+              />
+            )}
 
             {/* Acclaimed */}
-            <ContentCarousel
-              title="Aclamadas por la crítica"
-              items={acclaimedItems}
-              onItemClick={handleItemClick}
-            />
+            {acclaimedItems.length > 0 && (
+              <ContentCarousel
+                title="Aclamadas por la crítica"
+                items={acclaimedItems.map(m => ({ id: m.id, title: m.title, image: m.posterUrl }))}
+                onItemClick={(id) => {
+                  const media = acclaimedItems.find(m => m.id === id)
+                  if (media) handleItemClick(media)
+                }}
+              />
+            )}
 
             {/* New Releases */}
-            <ContentCarousel
-              title="Nuevas en la plataforma"
-              items={newReleases}
-              onItemClick={handleItemClick}
-            />
+            {newReleases.length > 0 && (
+              <ContentCarousel
+                title="Nuevas en la plataforma"
+                items={newReleases.map(m => ({ id: m.id, title: m.title, image: m.posterUrl }))}
+                onItemClick={(id) => {
+                  const media = newReleases.find(m => m.id === id)
+                  if (media) handleItemClick(media)
+                }}
+              />
+            )}
           </div>
         </div>
       </main>
