@@ -102,6 +102,12 @@ async function seed() {
 
   console.log(`📀 Total de películas finales: ${finalMovies.length}`);
 
+  if (finalMovies.length === 0) {
+    console.warn('⚠️  No se encontraron películas en TMDB (revisa TMDB_API_KEY y la conexión). Se omite la inserción.');
+    await client.close();
+    return;
+  }
+
   console.log("💾 Guardando en Mongo...");
 
   const docs = finalMovies.map((m) => ({

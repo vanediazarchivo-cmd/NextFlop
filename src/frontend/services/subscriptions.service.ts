@@ -31,14 +31,14 @@ export const subscriptionsService = {
    * Obtener todos los planes de suscripción disponibles
    */
   async getPlans(): Promise<SubscriptionPlan[]> {
-    return apiFetch<SubscriptionPlan[]>('/subscription-plans')
+    return apiFetch<SubscriptionPlan[]>('/plans')
   },
 
   /**
    * Obtener detalles de un plan específico
    */
   async getPlan(planId: string): Promise<SubscriptionPlan> {
-    return apiFetch<SubscriptionPlan>(`/subscription-plans/${planId}`)
+    return apiFetch<SubscriptionPlan>(`/plans/${planId}`)
   },
 
   /**
